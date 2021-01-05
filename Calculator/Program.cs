@@ -1,16 +1,33 @@
 ﻿using System;
+using System.Linq;
 
 namespace Calculator
 {
     public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
+        {
+            Start(args.FirstOrDefault());
+        }
+
+        private static void Start(string file)
         {
             Calculator calculator = new Calculator();
+            Utils utils = new Utils();
 
-            string input = @"1+(2+3+(4+5+(6*7+8)+9)+10)";
-
-            calculator.ParseString(input);
+            if (string.IsNullOrEmpty(file))
+            {
+                string input = Console.ReadLine();
+                string result = calculator.CalculateInput(input);
+                Console.WriteLine(input + " = " + (result ?? "nothing"));
+                Console.ReadKey();
+            }
+            else
+            {
+                string[] fileContent = utils.ReadFile(file);
+                fileContent= calculator.CalculateFileContent(fileContent);
+                utils.WriteFile(file, fileContent);
+            }
         }
     }
 }
