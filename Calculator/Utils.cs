@@ -10,7 +10,7 @@ namespace Calculator
     public class Utils
     {
         const string Operators = "+_*/";
-        public bool ValidateString(string text)
+        public bool ValidateString(string text, bool bracketsAllowed = true)
         {
             if (string.IsNullOrEmpty(text))
             {
@@ -21,7 +21,12 @@ namespace Calculator
                 return false;
             }
 
-            return !Regex.IsMatch(text, @"\p{L}|!|@|#|\$|%|\^|&|\[|\]|~|=|;|,|_|\\|`");
+            if (bracketsAllowed)
+            {
+                return !Regex.IsMatch(text, @"\p{L}|!|@|#|\$|%|\^|&|\[|\]|~|=|;|,|_|\\|`");
+            }
+
+            return !Regex.IsMatch(text, @"\p{L}|!|@|#|\$|%|\^|&|\[|\]|~|=|;|,|_|\\|`|\(|\)");
         }
 
         public string[] ReadFile(string fileName)
@@ -40,6 +45,6 @@ namespace Calculator
             File.WriteAllLines(filename.Insert(extensionLocation == -1 ? filename.Length : extensionLocation, " result"), fileContent);
         }
 
-       
+
     }
 }

@@ -19,7 +19,7 @@ namespace CalculatorTests
             string input = null;
 
             //act
-            string result = _calculator.CalculateInput(input);
+            string result = _calculator.CalculateInput(input, true);
 
             //assert
             Assert.IsNull(result);
@@ -32,7 +32,7 @@ namespace CalculatorTests
             string input = @"1+x+4";
 
             //act
-            string result = _calculator.CalculateInput(input);
+            string result = _calculator.CalculateInput(input, true);
 
             //assert
             Assert.AreEqual(errorMessage, result);
@@ -45,7 +45,7 @@ namespace CalculatorTests
             string input = @"2+15/3+4*2";
 
             //act
-            string result = _calculator.CalculateInput(input);
+            string result = _calculator.CalculateInput(input, true);
 
             //assert
             Assert.AreEqual("15", result);
@@ -58,7 +58,7 @@ namespace CalculatorTests
             string input = @"5+5/(5-5)";
 
             //act
-            string result = _calculator.CalculateInput(input);
+            string result = _calculator.CalculateInput(input, true);
 
             //assert
             Assert.AreEqual("Division by zero", result);
@@ -142,6 +142,19 @@ namespace CalculatorTests
 
             //assert
             Assert.AreEqual("5/0 = Division by zero\r\n", result);
+        }
+
+        [TestMethod]
+        public void CalculateInput_ConsoleInputBracketsBadExpression()
+        {
+            //arrange
+            string input = @"(2+15)/(3+4*2)";
+
+            //act
+            string result = _calculator.CalculateInput(input, false);
+
+            //assert
+            Assert.AreEqual(errorMessage, result);
         }
     }
 }

@@ -18,14 +18,14 @@ namespace Calculator
             if (string.IsNullOrEmpty(file))
             {
                 string input = Console.ReadLine();
-                string result = calculator.CalculateInput(input);
+                string result = calculator.CalculateInput(input, false);
                 Console.WriteLine(input + " = " + (result ?? "nothing"));
                 Console.ReadKey();
             }
             else
             {
                 string[] fileContent = utils.ReadFile(file);
-                fileContent= calculator.CalculateFileContent(fileContent);
+                fileContent = calculator.CalculateFileContent(fileContent);
                 utils.WriteFile(file, fileContent);
             }
         }

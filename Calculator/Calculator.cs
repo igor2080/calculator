@@ -10,15 +10,16 @@ namespace Calculator
     {
         private readonly Utils _utils = new Utils();
         const string errorMessage = "Bad Expression";
+        const string divisionByZeroMessage = "Division by zero";
 
-        public string CalculateInput(string text)
+        public string CalculateInput(string text, bool bracketsAllowed)
         {
             if (string.IsNullOrWhiteSpace(text))
             {
                 return null;
             }
 
-            if (!_utils.ValidateString(text))
+            if (!_utils.ValidateString(text, bracketsAllowed))
             {
                 return errorMessage;
             }
@@ -36,17 +37,16 @@ namespace Calculator
 
                 int closeBracePosition = splitText.IndexOf(')', openBracePosition);
 
-                if (openBracePosition != -1 && closeBracePosition != -1)
-                {
-                    string calculationResult = CalculateInput(new string(splitText.GetRange(openBracePosition + 1, closeBracePosition - openBracePosition - 1).ToArray()));
-                    splitText.RemoveRange(openBracePosition, closeBracePosition - openBracePosition + 1);
-                    splitText.InsertRange(openBracePosition, calculationResult);
-                }
-                else
+                if (openBracePosition == -1 || closeBracePosition == -1)
                 {//Input contains imbalanced braces
                     return errorMessage;
                 }
-
+                else
+                {
+                    string calculationResult = CalculateInput(new string(splitText.GetRange(openBracePosition + 1, closeBracePosition - openBracePosition - 1).ToArray()), bracketsAllowed);
+                    splitText.RemoveRange(openBracePosition, closeBracePosition - openBracePosition + 1);
+                    splitText.InsertRange(openBracePosition, calculationResult);
+                }
             }
 
             splitText = CalculateString(new string(splitText.ToArray()))?.ToCharArray().ToList();
@@ -58,35 +58,24 @@ namespace Calculator
             List<string> separatedNumbers = Regex.Split(text, @"(\*|\/|\+|\-)").ToList(); //split but keep signs
 
             if (separatedNumbers.Count % 2 == 0)
-            {//Input contains bad operation order
+            {//Input contains bad operations
                 return errorMessage;
             }
 
-            //first loop for multiplication and division
-            for (int i = 1; i < separatedNumbers.Count - 1; i += 2)
+            //first multiplication and division
+            DoMultiplicationDivision(separatedNumbers);
+
+            if (separatedNumbers[0] != divisionByZeroMessage)
             {
-                if (separatedNumbers[i].Contains('*') || separatedNumbers[i].Contains('/'))//could be addition or subtraction instead
-                {
-                    if (separatedNumbers[i].Contains('*'))
-                    {
-                        SetOperationResult(separatedNumbers, i, '*');
-                    }
-                    else//division
-                    {
-                        if (separatedNumbers[i + 1] == "0")
-                        {
-                            Console.WriteLine("Division by zero is not allowed");
-                            return "Division by zero";
-                        }
-
-                        SetOperationResult(separatedNumbers, i, '/');
-                    }
-
-                    i -= 2;//keep iterator in the same position
-                }
+                //then addition and subtraction
+                DoAdditionSubtraction(separatedNumbers);
             }
 
-            //second loop for addition and subtraction
+            return separatedNumbers[0];
+        }
+
+        private void DoAdditionSubtraction(List<string> separatedNumbers)
+        {
             for (int i = 1; i < separatedNumbers.Count - 1; i += 2)
             {
                 if (separatedNumbers[i].Contains('+') || separatedNumbers[i].Contains('-'))
@@ -103,8 +92,33 @@ namespace Calculator
                     i -= 2;//keep iterator in the same position
                 }
             }
+        }
 
-            return separatedNumbers[0];
+        private void DoMultiplicationDivision(List<string> separatedNumbers)
+        {
+            for (int i = 1; i < separatedNumbers.Count - 1; i += 2)
+            {
+                if (separatedNumbers[i].Contains('*') || separatedNumbers[i].Contains('/'))//could be addition or subtraction instead
+                {
+                    if (separatedNumbers[i].Contains('*'))
+                    {
+                        SetOperationResult(separatedNumbers, i, '*');
+                    }
+                    else//division
+                    {
+                        if (separatedNumbers[i + 1] == "0")
+                        {
+                            Console.WriteLine("Division by zero is not allowed");
+                            separatedNumbers[0] = divisionByZeroMessage;
+                            return;
+                        }
+
+                        SetOperationResult(separatedNumbers, i, '/');
+                    }
+
+                    i -= 2;//keep iterator in the same position
+                }
+            }
         }
 
         private void SetOperationResult(List<string> separatedNumbers, int index, char operation)
@@ -137,7 +151,7 @@ namespace Calculator
         {
             for (int i = 0; i < fileContent.Length; i++)
             {
-                fileContent[i] = fileContent[i] + " = " + CalculateInput(fileContent[i]);
+                fileContent[i] = fileContent[i] + " = " + CalculateInput(fileContent[i], true);
             }
 
             return fileContent;
