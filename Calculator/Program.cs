@@ -7,26 +7,26 @@ namespace Calculator
     {
         public static void Main(string[] args)
         {
-            Start(args.FirstOrDefault());
+            Program program = new Program();
+            program.Start(args.FirstOrDefault());
+            Console.ReadKey();
         }
 
-        private static void Start(string file)
+        private void Start(string arg)
         {
-            Calculator calculator = new Calculator();
-            Utils utils = new Utils();
-
-            if (string.IsNullOrEmpty(file))
+            if (arg == null)
             {
-                string input = Console.ReadLine();
-                string result = calculator.CalculateInput(input, false);
-                Console.WriteLine(input + " = " + (result ?? "nothing"));
-                Console.ReadKey();
+                Calculator calculator = new BracketlessCalculator();
+                calculator.inputProcessor = new ConsoleProcessor();
+                calculator.ReadInput(Console.ReadLine());
+                calculator.GetResult();
             }
             else
             {
-                string[] fileContent = utils.ReadFile(file);
-                fileContent = calculator.CalculateFileContent(fileContent);
-                utils.WriteFile(file, fileContent);
+                Calculator calculator = new BracketCalculator();
+                calculator.inputProcessor = new FileProcessor();
+                calculator.ReadInput(arg);
+                calculator.GetResult();
             }
         }
     }
