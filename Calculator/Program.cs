@@ -5,28 +5,26 @@ namespace Calculator
 {
     public class Program
     {
+        public static string[] programArgs;
+
         public static void Main(string[] args)
         {
+            programArgs = args;
             Program program = new Program();
-            program.Start(args.FirstOrDefault());
-            Console.ReadKey();
+            program.Start();
         }
 
-        private void Start(string arg)
+        private void Start()
         {
-            if (arg == null)
+            if (programArgs.Length < 1)
             {
-                Calculator calculator = new BracketlessCalculator();
-                calculator.inputProcessor = new ConsoleProcessor();
-                calculator.ReadInput(Console.ReadLine());
-                calculator.GetResult();
+                Calculator calculator = new ConsoleCalculator();
+                calculator.Calculate(calculator.GetInput());
             }
             else
             {
-                Calculator calculator = new BracketCalculator();
-                calculator.inputProcessor = new FileProcessor();
-                calculator.ReadInput(arg);
-                calculator.GetResult();
+                Calculator calculator = new FileCalculator();
+                calculator.Calculate(calculator.GetInput());
             }
         }
     }

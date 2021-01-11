@@ -18,8 +18,7 @@ namespace CalculatorTests
         [TestInitialize]
         public void CalculatorInit()
         {
-            _calculator = new BracketCalculator();
-            _calculator.inputProcessor = new ConsoleProcessor();
+            _calculator = new ConsoleCalculator();
             Console.SetOut(writer);
         }
 
@@ -32,79 +31,79 @@ namespace CalculatorTests
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void ReadInput_ConsoleNullThrowsException()
-        {
-            _calculator.ReadInput(null);
+        public void GetInput_ConsoleNullThrowsException()
+        {            
+            Console.SetIn(new StringReader(null));
+            _calculator.GetInput();
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void ReadInput_FileNullThrowsException()
+        [ExpectedException(typeof(FileNotFoundException))]
+        public void GetInput_FileNullThrowsException()
         {
-            _calculator.inputProcessor = new FileProcessor();
-            _calculator.ReadInput(null);
+            _calculator = new FileCalculator();
+            _calculator.GetInput();
         }
 
         [TestMethod]
-        public void CalculateInput_InvalidInputReturnsBadExpression()
+        public void Calculate_InvalidInputReturnsBadExpression()
         {
             //arrange
             string input = @"1+x+4";
-            _calculator.ReadInput(input);
+            Console.SetIn(new StringReader(input));
 
             //act
-            _calculator.GetResult();
+            _calculator.Calculate(_calculator.GetInput());
 
             //assert
             Assert.AreEqual(errorMessage + "\r\n", writer.ToString());
         }
 
         [TestMethod]
-        public void CalculateInput_ValidInputCorrectResult()
+        public void Calculate_ValidInputCorrectResult()
         {
             //arrange
             string input = @"2+15/3+4*2";
-            _calculator.ReadInput(input);
+            Console.SetIn(new StringReader(input));
 
             //act
-            _calculator.GetResult();
+            _calculator.Calculate(_calculator.GetInput());
 
             //assert
             Assert.AreEqual("15\r\n", writer.ToString());
         }
 
         [TestMethod]
-        public void CalculateInput_ValidInputDivideByZeroReturnsDivideByZeroMessage()
+        public void Calculate_ValidInputDivideByZeroReturnsDivideByZeroMessage()
         {
             //arrange
-            string input = @"5+5/(5-5)";
-            _calculator.ReadInput(input);
+            string input = @"5+5/0";
+            Console.SetIn(new StringReader(input));
+
 
             //act
-            _calculator.GetResult();
+            _calculator.Calculate(_calculator.GetInput());
 
             //assert
             Assert.AreEqual("Division by zero\r\n", writer.ToString());
         }
 
         [TestMethod]
-        public void CalculateInput_ConsoleInputBracketsBadExpression()
+        public void Calculate_ConsoleInputBracketsBadExpression()
         {
             //arrange
             string input = @"(2+15)/(3+4*2)";
-            _calculator = new BracketlessCalculator();
-            _calculator.inputProcessor = new ConsoleProcessor();
-            _calculator.ReadInput(input);
+            Console.SetIn(new StringReader(input));
 
             //act
-            _calculator.GetResult();
+            _calculator.Calculate(_calculator.GetInput());
 
             //assert
             Assert.AreEqual(errorMessage + "\r\n", writer.ToString());
         }
 
         [TestMethod]
-        public void CalculateInput_FromValidFileValidCalculation()
+        public void Calculate_FromValidFileValidCalculation()
         {
             //arrange
             using (StreamWriter writer = File.CreateText(testFileName))
@@ -112,11 +111,8 @@ namespace CalculatorTests
                 writer.WriteLine(@"2+15/3+4*2");
             }
 
-            _calculator.inputProcessor = new FileProcessor();
-            _calculator.ReadInput(testFileName);
-
             //act
-            _calculator.GetResult();
+            Program.Main(new string[] { testFileName });
             string result = File.ReadAllText(testFileName + " result");
 
             //assert
@@ -124,7 +120,7 @@ namespace CalculatorTests
         }
 
         [TestMethod]
-        public void CalculateInput_FromValidFileValidMultiLineCalculation()
+        public void Calculate_FromValidFileValidMultiLineCalculation()
         {
             //arrange
             using (StreamWriter writer = File.CreateText(testFileName))
@@ -133,11 +129,8 @@ namespace CalculatorTests
                 writer.WriteLine(@"1+2*(3+2)");
             }
 
-            _calculator.inputProcessor = new FileProcessor();
-            _calculator.ReadInput(testFileName);
-
             //act
-            _calculator.GetResult();
+            Program.Main(new string[] { testFileName });
             string result = File.ReadAllText(testFileName + " result");
 
             //assert
@@ -146,14 +139,13 @@ namespace CalculatorTests
 
         [TestMethod]
         [ExpectedException(typeof(FileNotFoundException))]
-        public void CalculateInput_FromInvalidFile()
+        public void Calculate_FromInvalidFile()
         {
-            _calculator.inputProcessor = new FileProcessor();
-            _calculator.ReadInput(testFileName);
+            Program.Main(new string[] { "no" });
         }
 
         [TestMethod]
-        public void CalculateInput_FromValidFileInvalidCalculation()
+        public void Calculate_FromValidFileInvalidCalculation()
         {
             //arrange
             using (StreamWriter writer = File.CreateText("test"))
@@ -161,11 +153,8 @@ namespace CalculatorTests
                 writer.WriteLine(@"1+x+4");
             }
 
-            _calculator.inputProcessor = new FileProcessor();
-            _calculator.ReadInput(testFileName);
-
             //act
-            _calculator.GetResult();
+            Program.Main(new string[] { testFileName });
             string result = File.ReadAllText(testFileName + " result");
 
             //assert
@@ -173,7 +162,7 @@ namespace CalculatorTests
         }
 
         [TestMethod]
-        public void CalculateInput_FromValidFileDivisionByZero()
+        public void Calculate_FromValidFileDivisionByZero()
         {
             //arrange
             using (StreamWriter writer = File.CreateText("test"))
@@ -181,11 +170,8 @@ namespace CalculatorTests
                 writer.WriteLine(@"5/0");
             }
 
-            _calculator.inputProcessor = new FileProcessor();
-            _calculator.ReadInput(testFileName);
-
             //act
-            _calculator.GetResult();
+            Program.Main(new string[] { testFileName });
             string result = File.ReadAllText(testFileName + " result");
 
             //assert

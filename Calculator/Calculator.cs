@@ -8,23 +8,14 @@ namespace Calculator
 {
     public abstract class Calculator
     {
-        
         protected const string errorMessage = "Bad Expression";
         protected const string divisionByZeroMessage = "Division by zero";
-        protected const string Operators = "+_*/";
-        public Processor inputProcessor;
-        
-        public virtual void ReadInput(string text)
-        {
-            inputProcessor.CheckInput(text);
-        }
+        protected const string operators = "+_*/";
+        protected abstract string RegexFilter { get; }
+        protected IProcessor inputProcessor;
+        public abstract string[] GetInput();
+        public abstract void Calculate(string[] input);
 
-        public void GetResult()
-        {
-            inputProcessor.DoOutput(CalculateInput);
-        }
-
-        protected abstract string CalculateInput(string input);
 
         protected string CalculateString(string text)
         {
@@ -118,7 +109,5 @@ namespace Calculator
             separatedNumbers.RemoveRange(index - 1, 3);
             separatedNumbers.Insert(index - 1, result.ToString());
         }
-
-
     }
 }

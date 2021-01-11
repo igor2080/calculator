@@ -1,38 +1,29 @@
-﻿using System;
+﻿using Calculator;
+using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace Calculator
 {
-    public class ConsoleProcessor : Processor
+    public class ConsoleProcessor : IProcessor
     {
-        public override void CheckInput(string input)
+        public string[] GetContent(string input)
         {
             ValidateInput(input);
-            SetInput(input);
+            return new string[] { input };
         }
 
-        protected override void SetInput(string input)
+        public void WriteContent(string[] data)
         {
-            Input = new string[] { input };
+            Console.WriteLine(data[0] ?? "nothing");
         }
 
-
-
-        public override void DoOutput(Func<string, string> calculator)
+        protected void ValidateInput(string text)
         {
-            if (Input.Length > 0)
+            if (string.IsNullOrEmpty(text))
             {
-                string result = calculator(Input[0]);
-                Console.WriteLine(result ?? "nothing");
-            }
-            else
-            {
-                throw new InvalidOperationException("No input was given");
+                throw new ArgumentNullException($"'{nameof(text)}' cannot be null or empty", nameof(text));
             }
         }
-
-
     }
 }
