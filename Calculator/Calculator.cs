@@ -13,12 +13,15 @@ namespace Calculator
         protected const string operators = "+_*/";
         protected abstract string RegexFilter { get; }
         protected IProcessor inputProcessor;
-        public abstract string[] GetInput();
-        public abstract void Calculate(string[] input);
+        public abstract void Calculate(string text);
 
 
         protected string CalculateString(string text)
         {
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                return text;
+            }
             List<string> separatedNumbers = Regex.Split(text, @"(\*|\/|\+|\-)").ToList(); //split but keep signs
 
             if (separatedNumbers.Count % 2 == 0)
@@ -29,7 +32,7 @@ namespace Calculator
             //first multiplication and division
             DoMultiplicationDivision(separatedNumbers);
 
-            if (separatedNumbers[0] != divisionByZeroMessage)
+            if (separatedNumbers[0] != divisionByZeroMessage && separatedNumbers[0] != errorMessage)
             {
                 //then addition and subtraction
                 DoAdditionSubtraction(separatedNumbers);
@@ -87,7 +90,15 @@ namespace Calculator
         protected void SetOperationResult(List<string> separatedNumbers, int index, char operation)
         {
             float result = 0;
-            float leftNumber = float.Parse(separatedNumbers[index - 1]);
+            float leftNumber;
+            if (separatedNumbers[index - 1] == "" && (operation == '+' || operation == '-'))
+            {
+                leftNumber = 0;
+            }
+            else
+            {
+                leftNumber = float.Parse(separatedNumbers[index - 1]);
+            }
             float rightNumber = float.Parse(separatedNumbers[index + 1]);
 
             switch (operation)

@@ -29,21 +29,7 @@ namespace CalculatorTests
             File.Delete(testFileName + " result");
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void GetInput_ConsoleNullThrowsException()
-        {            
-            Console.SetIn(new StringReader(null));
-            _calculator.GetInput();
-        }
 
-        [TestMethod]
-        [ExpectedException(typeof(FileNotFoundException))]
-        public void GetInput_FileNullThrowsException()
-        {
-            _calculator = new FileCalculator();
-            _calculator.GetInput();
-        }
 
         [TestMethod]
         public void Calculate_InvalidInputReturnsBadExpression()
@@ -53,7 +39,7 @@ namespace CalculatorTests
             Console.SetIn(new StringReader(input));
 
             //act
-            _calculator.Calculate(_calculator.GetInput());
+            _calculator.Calculate(null);
 
             //assert
             Assert.AreEqual(errorMessage + "\r\n", writer.ToString());
@@ -67,7 +53,7 @@ namespace CalculatorTests
             Console.SetIn(new StringReader(input));
 
             //act
-            _calculator.Calculate(_calculator.GetInput());
+            _calculator.Calculate(null);
 
             //assert
             Assert.AreEqual("15\r\n", writer.ToString());
@@ -80,9 +66,8 @@ namespace CalculatorTests
             string input = @"5+5/0";
             Console.SetIn(new StringReader(input));
 
-
             //act
-            _calculator.Calculate(_calculator.GetInput());
+            _calculator.Calculate(null);
 
             //assert
             Assert.AreEqual("Division by zero\r\n", writer.ToString());
@@ -96,7 +81,7 @@ namespace CalculatorTests
             Console.SetIn(new StringReader(input));
 
             //act
-            _calculator.Calculate(_calculator.GetInput());
+            _calculator.Calculate(null);
 
             //assert
             Assert.AreEqual(errorMessage + "\r\n", writer.ToString());
@@ -178,6 +163,30 @@ namespace CalculatorTests
             Assert.AreEqual("5/0 = Division by zero\r\n", result);
         }
 
+        [DataTestMethod]
+        [DataRow(@"-2+5", "3")]
+        [DataRow(@"(-3+5)2", errorMessage)]
+        [DataRow(@"225-", null)]
+        [DataRow(@"3526412549563214598", "3526412549563214598")]
+        [DataRow(@"0+5", "5")]
+        [DataRow(@"/57", null)]
+        [DataRow(@"+2-1", "1")]
+        public void Calculate_DifferentResults(string input, string result)
+        {
+            //arrange
+            Console.SetIn(new StringReader(input));
 
+            //assert
+            if (result == null)
+            {
+                Assert.ThrowsException<FormatException>(() => _calculator.Calculate(null));
+            }
+            else
+            {
+                _calculator.Calculate(null);
+                Assert.AreEqual(result + "\r\n", writer.ToString());
+            }
+
+        }
     }
 }

@@ -5,26 +5,24 @@ namespace Calculator
 {
     public class Program
     {
-        public static string[] programArgs;
-
         public static void Main(string[] args)
         {
-            programArgs = args;
             Program program = new Program();
-            program.Start();
+            program.Start(args.FirstOrDefault());
         }
 
-        private void Start()
+        private void Start(string arg)
         {
-            if (programArgs.Length < 1)
+            Calculator calculator;
+            if (string.IsNullOrWhiteSpace(arg))
             {
-                Calculator calculator = new ConsoleCalculator();
-                calculator.Calculate(calculator.GetInput());
+                calculator = new ConsoleCalculator();
+                calculator.Calculate(null);
             }
             else
             {
-                Calculator calculator = new FileCalculator();
-                calculator.Calculate(calculator.GetInput());
+                calculator = new FileCalculator();
+                calculator.Calculate(arg);
             }
         }
     }

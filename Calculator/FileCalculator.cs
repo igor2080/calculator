@@ -8,34 +8,30 @@ namespace Calculator
 {
     public class FileCalculator : Calculator
     {
-        protected override string RegexFilter { get { return @"\p{L}|!|@|#|\$|%|\^|&|\[|\]|~|=|;|,|_|\\|`"; } }
+        protected override string RegexFilter => @"\p{L}|!|@|#|\$|%|\^|&|\[|\]|~|=|;|,|_|\\|`";
 
         public FileCalculator()
         {
             inputProcessor = new FileProcessor();
         }
 
-        public override string[] GetInput()
+        protected string[] GetInput(string fileName)
         {
-            if (Program.programArgs.Length>0)
-            {
-                return inputProcessor.GetContent(Program.programArgs[0]);
-            }
-
-            return null;
+            return inputProcessor.GetContent(fileName);
         }
 
-        public override void Calculate(string[] input)
+        public override void Calculate(string fileName)
         {
+            string[] input = this.GetInput(fileName);
             List<string> fileContent = new List<string>();
             for (int i = 0; i < input.Length; i++)
             {
-                fileContent.Add(input[i] + " = " + Calculate(input[i]));
+                fileContent.Add(input[i] + " = " + CalculateLine(input[i]));
             }
             inputProcessor.WriteContent(fileContent.ToArray());
         }
 
-        private string Calculate(string input)
+        private string CalculateLine(string input)
         {
             if (input == null)
             {
@@ -66,13 +62,16 @@ namespace Calculator
                 }
                 else
                 {
-                    string calculationResult = Calculate(new string(splitText.GetRange(openBracePosition + 1, closeBracePosition - openBracePosition - 1).ToArray()));
+                    List<char> splitRange = splitText.GetRange(openBracePosition + 1, closeBracePosition - openBracePosition - 1);
+                    string splitRangeString = new string(splitRange.ToArray());
+                    string calculationResult = CalculateLine(splitRangeString);
                     splitText.RemoveRange(openBracePosition, closeBracePosition - openBracePosition + 1);
                     splitText.InsertRange(openBracePosition, calculationResult);
                 }
             }
 
-            splitText = CalculateString(new string(splitText.ToArray()))?.ToCharArray().ToList();
+            string calculationResultString = CalculateString(new string(splitText.ToArray()));
+            splitText = calculationResultString?.ToCharArray().ToList();
             return new string(splitText?.ToArray());
         }
     }

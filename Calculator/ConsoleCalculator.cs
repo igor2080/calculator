@@ -11,29 +11,35 @@ namespace Calculator
         {
             inputProcessor = new ConsoleProcessor();
         }
-        protected override string RegexFilter { get { return @"\p{L}|!|@|#|\$|%|\^|&|\[|\]|~|=|;|,|_|\\|`|\(|\)"; } }
+        protected override string RegexFilter => @"\p{L}|!|@|#|\$|%|\^|&|\[|\]|~|=|;|,|_|\\|`|\(|\)";
 
-        public override string[] GetInput()
+        protected string GetInput()
         {
-            return inputProcessor.GetContent(Console.ReadLine());
+            return inputProcessor.GetContent(Console.ReadLine())[0];
         }
 
-        public override void Calculate(string[] input)
+        public override void Calculate(string input)
         {
-            if (input == null)
+
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                input = this.GetInput();
+                
+            }
+            else
             {
                 throw new InvalidOperationException("No input was given");
             }
 
-            string userText = input[0];
+            
 
-            if (operators.Contains(userText[0]) || operators.Contains(userText[userText.Length - 1]) || Regex.IsMatch(userText, RegexFilter))
+            if (operators.Contains(input) || operators.Contains(input[input.Length - 1]) || Regex.IsMatch(input, RegexFilter))
             {
                 inputProcessor.WriteContent(new string[] { errorMessage });
                 return;
             }
 
-            inputProcessor.WriteContent(new string[] { CalculateString(userText) });
+            inputProcessor.WriteContent(new string[] { CalculateString(input) });
         }
     }
 }
