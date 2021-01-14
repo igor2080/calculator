@@ -7,31 +7,16 @@ namespace Calculator
 {
     public class ConsoleCalculator : Calculator
     {
+        protected override string RegexFilter => @"\p{L}|!|@|#|\$|%|\^|&|\[|\]|~|=|;|,|_|\\|`|\(|\)";
+
         public ConsoleCalculator()
         {
             inputProcessor = new ConsoleProcessor();
         }
-        protected override string RegexFilter => @"\p{L}|!|@|#|\$|%|\^|&|\[|\]|~|=|;|,|_|\\|`|\(|\)";
-
-        protected string GetInput()
-        {
-            return inputProcessor.GetContent(Console.ReadLine())[0];
-        }
 
         public override void Calculate(string input)
         {
-
-            if (string.IsNullOrWhiteSpace(input))
-            {
-                input = this.GetInput();
-                
-            }
-            else
-            {
-                throw new InvalidOperationException("No input was given");
-            }
-
-            
+            input = inputProcessor.GetContent(Console.ReadLine())[0];
 
             if (operators.Contains(input) || operators.Contains(input[input.Length - 1]) || Regex.IsMatch(input, RegexFilter))
             {

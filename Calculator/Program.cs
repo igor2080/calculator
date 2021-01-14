@@ -5,25 +5,26 @@ namespace Calculator
 {
     public class Program
     {
+        const string ContinueKey = "1";
+
         public static void Main(string[] args)
         {
-            Program program = new Program();
-            program.Start(args.FirstOrDefault());
+            do
+            {
+                string input = args.FirstOrDefault();
+                Calculator calculator = string.IsNullOrEmpty(input)
+                ? new ConsoleCalculator() as Calculator
+                : new FileCalculator() as Calculator;
+                calculator.Calculate(input);
+                
+            }
+            while (PromptTryAgain());
         }
 
-        private void Start(string arg)
+        private static bool PromptTryAgain()
         {
-            Calculator calculator;
-            if (string.IsNullOrWhiteSpace(arg))
-            {
-                calculator = new ConsoleCalculator();
-                calculator.Calculate(null);
-            }
-            else
-            {
-                calculator = new FileCalculator();
-                calculator.Calculate(arg);
-            }
+            Console.WriteLine("Would you like to do another calculation? Type 1 to restart or anything else to exit: ");
+            return Console.ReadLine() == ContinueKey;
         }
     }
 }

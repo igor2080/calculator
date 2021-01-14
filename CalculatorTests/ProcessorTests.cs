@@ -28,7 +28,7 @@ namespace CalculatorTests
             _processor.GetContent(null);
         }
 
-        
+        [TestMethod]
         [ExpectedException(typeof(FileNotFoundException))]
         public void GetInput_FileNullThrowsException()
         {

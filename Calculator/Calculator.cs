@@ -10,11 +10,10 @@ namespace Calculator
     {
         protected const string errorMessage = "Bad Expression";
         protected const string divisionByZeroMessage = "Division by zero";
-        protected const string operators = "+_*/";
-        protected abstract string RegexFilter { get; }
-        protected IProcessor inputProcessor;
+        protected const string operators = "*/";
         public abstract void Calculate(string text);
-
+        protected abstract string RegexFilter { get; }        
+        protected IProcessor inputProcessor;
 
         protected string CalculateString(string text)
         {
@@ -91,7 +90,7 @@ namespace Calculator
         {
             float result = 0;
             float leftNumber;
-            if (separatedNumbers[index - 1] == "" && (operation == '+' || operation == '-'))
+            if (string.IsNullOrEmpty(separatedNumbers[index - 1]) && (operation == '+' || operation == '-'))
             {
                 leftNumber = 0;
             }

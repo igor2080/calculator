@@ -24,7 +24,8 @@ namespace Calculator
             }
 
             int extensionLocation = _currentFilePath.IndexOf('.');
-            File.WriteAllLines(_currentFilePath.Insert(extensionLocation == -1 ? _currentFilePath.Length : extensionLocation, " result"), data);
+            string fileName = _currentFilePath.Insert(extensionLocation == -1 ? _currentFilePath.Length : extensionLocation, " result");
+            File.WriteAllLines(fileName, data);
         }
 
         protected void ValidateInput(string text)

@@ -3,6 +3,6 @@
     public interface IProcessor
     {
         string[] GetContent(string input);
-        void WriteContent(string[] data);
+        void WriteContent(params string[] data);
     }
 }
