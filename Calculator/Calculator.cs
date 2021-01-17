@@ -8,12 +8,13 @@ namespace Calculator
 {
     public abstract class Calculator
     {
-        protected const string errorMessage = "Bad Expression";
-        protected const string divisionByZeroMessage = "Division by zero";
-        protected const string operators = "*/";
+        protected const string _errorMessage = "Bad Expression";
+        protected const string _divisionByZeroMessage = "Division by zero";
+        protected const string _operators = "*/";
+        protected IProcessor _inputProcessor;
+        protected abstract string RegexFilter { get; }
+
         public abstract void Calculate(string text);
-        protected abstract string RegexFilter { get; }        
-        protected IProcessor inputProcessor;
 
         protected string CalculateString(string text)
         {
@@ -25,13 +26,13 @@ namespace Calculator
 
             if (separatedNumbers.Count % 2 == 0)
             {//Input contains bad operations
-                return errorMessage;
+                return _errorMessage;
             }
 
             //first multiplication and division
             DoMultiplicationDivision(separatedNumbers);
 
-            if (separatedNumbers[0] != divisionByZeroMessage && separatedNumbers[0] != errorMessage)
+            if (separatedNumbers[0] != _divisionByZeroMessage && separatedNumbers[0] != _errorMessage)
             {
                 //then addition and subtraction
                 DoAdditionSubtraction(separatedNumbers);
@@ -74,7 +75,7 @@ namespace Calculator
                     {
                         if (separatedNumbers[i + 1] == "0")
                         {
-                            separatedNumbers[0] = divisionByZeroMessage;
+                            separatedNumbers[0] = _divisionByZeroMessage;
                             return;
                         }
 

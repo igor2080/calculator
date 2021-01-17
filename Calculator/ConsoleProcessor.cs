@@ -9,13 +9,17 @@ namespace Calculator
     {
         public string[] GetContent(string input)
         {
-            ValidateInput(input);
-            return new string[] { input };
+            string userInput = Console.ReadLine();
+            ValidateInput(userInput);
+            return new string[] { userInput };
         }
 
         public void WriteContent(string[] data)
         {
-            Console.WriteLine(data[0] ?? "nothing");
+            foreach (string item in data)
+            {
+                Console.WriteLine(item ?? "nothing");
+            }
         }
 
         protected void ValidateInput(string text)

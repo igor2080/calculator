@@ -12,12 +12,12 @@ namespace Calculator
 
         public FileCalculator()
         {
-            inputProcessor = new FileProcessor();
-        }        
+            _inputProcessor = new FileProcessor();
+        }
 
         public override void Calculate(string fileName)
         {
-            string[] input = this.inputProcessor.GetContent(fileName);
+            string[] input = this._inputProcessor.GetContent(fileName);
             string[] fileContent = new string[input.Length];
 
             for (int i = 0; i < input.Length; i++)
@@ -25,7 +25,7 @@ namespace Calculator
                 fileContent[i] = input[i] + " = " + CalculateLine(input[i]);
             }
 
-            inputProcessor.WriteContent(fileContent.ToArray());
+            _inputProcessor.WriteContent(fileContent.ToArray());
         }
 
         private string CalculateLine(string input)
@@ -35,35 +35,30 @@ namespace Calculator
                 return "";
             }
 
-            if (operators.Contains(input[0]) || operators.Contains(input[input.Length - 1]) || Regex.IsMatch(input, RegexFilter))
+            if (_operators.Contains(input[0]) || _operators.Contains(input[input.Length - 1]) || Regex.IsMatch(input, RegexFilter))
             {
-                return errorMessage;
+                return _errorMessage;
             }
 
             while (input.Any(x => x == '(' || x == ')'))
             {
                 int openBracePosition = input.LastIndexOf('(');
-
-                if (openBracePosition == -1)
-                {//Input contains imbalanced braces
-                    return errorMessage;
-                }
-
-                int closeBracePosition = input.IndexOf(')', openBracePosition);
+                int closeBracePosition = openBracePosition == -1
+                    ? openBracePosition
+                    : input.IndexOf(')', openBracePosition);
 
                 if (closeBracePosition == -1)
                 {//Input contains imbalanced braces
-                    return errorMessage;
+                    return _errorMessage;
                 }
-                else
-                {                    
-                    string splitRange = input.Substring(openBracePosition + 1, closeBracePosition - openBracePosition - 1);
-                    string calculationResult = CalculateLine(splitRange);                    
-                    input=input.Remove(openBracePosition, closeBracePosition - openBracePosition + 1);
-                    input= input.Insert(openBracePosition, calculationResult);                    
-                }
+
+                string splitRange = input.Substring(openBracePosition + 1, closeBracePosition - openBracePosition - 1);
+                string calculationResult = CalculateLine(splitRange);
+                input = input.Remove(openBracePosition, closeBracePosition - openBracePosition + 1);
+                input = input.Insert(openBracePosition, calculationResult);
+
             }
-            
+
             input = CalculateString(input);
             return input;
         }

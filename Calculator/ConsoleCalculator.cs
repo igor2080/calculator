@@ -7,24 +7,34 @@ namespace Calculator
 {
     public class ConsoleCalculator : Calculator
     {
+        private const string _continueKey = "1";
         protected override string RegexFilter => @"\p{L}|!|@|#|\$|%|\^|&|\[|\]|~|=|;|,|_|\\|`|\(|\)";
-
+        
         public ConsoleCalculator()
         {
-            inputProcessor = new ConsoleProcessor();
+            _inputProcessor = new ConsoleProcessor();
         }
 
         public override void Calculate(string input)
         {
-            input = inputProcessor.GetContent(Console.ReadLine())[0];
-
-            if (operators.Contains(input) || operators.Contains(input[input.Length - 1]) || Regex.IsMatch(input, RegexFilter))
+            do
             {
-                inputProcessor.WriteContent(new string[] { errorMessage });
-                return;
-            }
+                input = _inputProcessor.GetContent(null)[0];
 
-            inputProcessor.WriteContent(new string[] { CalculateString(input) });
+                if (_operators.Contains(input) || _operators.Contains(input[input.Length - 1]) || Regex.IsMatch(input, RegexFilter))
+                {
+                    _inputProcessor.WriteContent(_errorMessage);
+                    return;
+                }
+
+                _inputProcessor.WriteContent(CalculateString(input));
+            }
+            while (PromptTryAgain());
+        }
+        private static bool PromptTryAgain()
+        {
+            Console.WriteLine("Would you like to do another calculation? Type 1 to restart or anything else to exit: ");
+            return Console.ReadLine() == _continueKey;
         }
     }
 }
