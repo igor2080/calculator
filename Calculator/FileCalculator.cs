@@ -18,7 +18,7 @@ namespace Calculator
 
         public override void Calculate(string fileName)
         {
-            if (fileName == null)
+            if (string.IsNullOrEmpty(fileName))
             {
                 throw new ArgumentNullException(nameof(fileName));
             }

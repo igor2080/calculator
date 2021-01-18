@@ -15,12 +15,6 @@ namespace CalculatorTests
         const string _errorMessage = "Bad Expression";
         private readonly Mock<IProcessor> processorMock = new Mock<IProcessor>();
 
-        [TestInitialize]
-        public void ConsoleCalculatorInit()
-        {
-            Console.SetIn(new StringReader(""));
-        }
-
         [TestMethod]
         public void Calculate_InvalidInputReturnsBadExpression()
         {

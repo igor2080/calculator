@@ -19,7 +19,7 @@ namespace Calculator
         public override void Calculate(string input)
         {
             input = _inputProcessor.GetContent(input ?? "Enter expression to calculate:").FirstOrDefault();
-            while (input != null)
+            if (input != null)
             {
                 if (_operators.Contains(input) || _operators.Contains(input[input.Length - 1]) || Regex.IsMatch(input, RegexFilter))
                 {
@@ -28,7 +28,7 @@ namespace Calculator
                 }
 
                 _inputProcessor.WriteContent(CalculateString(input));
-                input = _inputProcessor.GetContent("Enter another experssion to calculate or press ctrl+c to exit:").FirstOrDefault();
+                Calculate("Enter another expression to calculate or press ctrl+c to exit:");
             }
         }
     }

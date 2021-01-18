@@ -17,6 +17,7 @@ namespace CalculatorTests
         [TestInitialize]
         public void ProcessorInit()
         {
+            Console.SetIn(new StringReader(""));
             Console.SetOut(_writer);
         }
 

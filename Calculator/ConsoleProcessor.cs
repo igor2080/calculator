@@ -21,6 +21,11 @@ namespace Calculator
 
         public void WriteContent(string[] data)
         {
+            if(data==null)
+            {
+                return;
+            }
+
             foreach (string item in data)
             {
                 Console.WriteLine(item ?? "nothing");

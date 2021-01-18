@@ -11,6 +11,11 @@ namespace Calculator
         protected const string _errorMessage = "Bad Expression";
         protected const string _divisionByZeroMessage = "Division by zero";
         protected const string _operators = "*/";
+        private const char _multi = '*';
+        private const char _divide = '/';
+        private const char _add = '+';
+        private const char _subtract = '-';
+
         protected IProcessor _inputProcessor;
         protected abstract string RegexFilter { get; }
 
@@ -37,7 +42,7 @@ namespace Calculator
             //first multiplication and division
             try
             {
-                DoOperations(separatedNumbers, '*', '/');
+                DoOperations(separatedNumbers, _multi, _divide);
             }
             catch (DivideByZeroException)
             {
@@ -45,7 +50,7 @@ namespace Calculator
             }
 
             //then addition and subtraction
-            DoOperations(separatedNumbers, '+', '-');
+            DoOperations(separatedNumbers, _add, _subtract);
 
             return separatedNumbers[0];
         }
@@ -86,20 +91,20 @@ namespace Calculator
 
             switch (operation)
             {
-                case '*':
+                case _multi:
                     result = leftNumber * rightNumber;
                     break;
-                case '/':
+                case _divide:
                     if (rightNumber == 0)
                     {
                         throw new DivideByZeroException();
                     }
                     result = leftNumber / rightNumber;
                     break;
-                case '+':
+                case _add:
                     result = leftNumber + rightNumber;
                     break;
-                case '-':
+                case _subtract:
                     result = leftNumber - rightNumber;
                     break;
             }
