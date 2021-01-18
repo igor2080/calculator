@@ -9,10 +9,9 @@ namespace Calculator
         {
             string input = args.FirstOrDefault();
             Calculator calculator = string.IsNullOrEmpty(input)
-            ? new ConsoleCalculator() as Calculator
-            : new FileCalculator() as Calculator;
+            ? new ConsoleCalculator(new ConsoleProcessor()) as Calculator
+            : new FileCalculator(new FileProcessor()) as Calculator;
             calculator.Calculate(input);
-            //loop was moved to console calculator(?)
         }
     }
 }

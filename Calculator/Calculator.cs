@@ -14,6 +14,11 @@ namespace Calculator
         protected IProcessor _inputProcessor;
         protected abstract string RegexFilter { get; }
 
+        protected Calculator(IProcessor processor)
+        {
+            this._inputProcessor = processor ?? throw new ArgumentNullException(nameof(processor));
+        }
+
         public abstract void Calculate(string text);
 
         protected string CalculateString(string text)

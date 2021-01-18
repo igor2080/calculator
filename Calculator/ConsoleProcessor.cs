@@ -7,8 +7,13 @@ namespace Calculator
 {
     public class ConsoleProcessor : IProcessor
     {
-        public string[] GetContent(string input)
+        public string[] GetContent(string message)
         {
+            if (!string.IsNullOrEmpty(message))
+            {
+                Console.WriteLine(message);
+            }
+
             string userInput = Console.ReadLine();
             ValidateInput(userInput);
             return new string[] { userInput };

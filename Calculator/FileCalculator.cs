@@ -10,9 +10,10 @@ namespace Calculator
     {
         protected override string RegexFilter => @"\p{L}|!|@|#|\$|%|\^|&|\[|\]|~|=|;|,|_|\\|`";
 
-        public FileCalculator()
+        public FileCalculator(IProcessor processor)
+            :base(processor)
         {
-            _inputProcessor = new FileProcessor();
+            
         }
 
         public override void Calculate(string fileName)

@@ -1,5 +1,6 @@
 ﻿using Calculator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -24,6 +25,20 @@ namespace CalculatorTests
         public void GetInput_ConsoleNullThrowsException()
         {
             _processor.GetContent(null);
+        }
+
+        [TestMethod]
+        public void GetInput_CorrectContent()
+        {
+            //arrange
+            string input = @"1+x+4";
+            Console.SetIn(new StringReader(input));
+
+            //act
+            string actualResult = _processor.GetContent(null)[0];
+
+            //assert
+            Assert.AreEqual(input, actualResult);
         }
     }
 }

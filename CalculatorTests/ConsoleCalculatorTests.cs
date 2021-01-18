@@ -1,8 +1,10 @@
 ﻿using Calculator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace CalculatorTests
@@ -11,13 +13,12 @@ namespace CalculatorTests
     public class ConsoleCalculatorTests
     {
         const string _errorMessage = "Bad Expression";
-        private readonly StringWriter _writer = new StringWriter();
-        private readonly ConsoleCalculator _calculator = new ConsoleCalculator();
+        private readonly Mock<IProcessor> processorMock = new Mock<IProcessor>();
 
         [TestInitialize]
-        public void CalculatorInit()
+        public void ConsoleCalculatorInit()
         {
-            Console.SetOut(_writer);
+            Console.SetIn(new StringReader(""));
         }
 
         [TestMethod]
@@ -25,13 +26,19 @@ namespace CalculatorTests
         {
             //arrange
             string input = @"1+x+4";
-            Console.SetIn(new StringReader(input));
+            processorMock.Setup(x => x.GetContent(input)).Returns(new[] { input });
+            string actualResult = null;
+            processorMock.Setup(x => x.WriteContent(It.IsAny<string>())).Callback((string[] output) =>
+            {
+                actualResult = output.FirstOrDefault();
+            });
+            var calculator = new ConsoleCalculator(processorMock.Object);
 
             //act
-            _calculator.Calculate(null);
+            calculator.Calculate(input);
 
             //assert
-            Assert.AreEqual(_errorMessage + "\r\n", _writer.ToString());
+            Assert.AreEqual(_errorMessage, actualResult);
         }
 
         [TestMethod]
@@ -39,13 +46,19 @@ namespace CalculatorTests
         {
             //arrange
             string input = @"2+15/3+4*2";
-            Console.SetIn(new StringReader(input));
+            processorMock.Setup(x => x.GetContent(input)).Returns(new[] { input });
+            string actualResult = null;
+            processorMock.Setup(x => x.WriteContent(It.IsAny<string>())).Callback((string[] output) =>
+            {
+                actualResult = output.FirstOrDefault();
+            });
+            var calculator = new ConsoleCalculator(processorMock.Object);
 
             //act
-            _calculator.Calculate(null);
+            calculator.Calculate(input);
 
             //assert
-            Assert.AreEqual("15\r\n", _writer.ToString());
+            Assert.AreEqual("15", actualResult);
         }
 
         [TestMethod]
@@ -53,13 +66,19 @@ namespace CalculatorTests
         {
             //arrange
             string input = @"5+5/0";
-            Console.SetIn(new StringReader(input));
+            processorMock.Setup(x => x.GetContent(input)).Returns(new[] { input });
+            string actualResult = null;
+            processorMock.Setup(x => x.WriteContent(It.IsAny<string>())).Callback((string[] output) =>
+            {
+                actualResult = output.FirstOrDefault();
+            });
+            var calculator = new ConsoleCalculator(processorMock.Object);
 
             //act
-            _calculator.Calculate(null);
+            calculator.Calculate(input);
 
             //assert
-            Assert.AreEqual("Division by zero\r\n", _writer.ToString());
+            Assert.AreEqual("Division by zero", actualResult);
         }
 
         [TestMethod]
@@ -67,13 +86,19 @@ namespace CalculatorTests
         {
             //arrange
             string input = @"(2+15)/(3+4*2)";
-            Console.SetIn(new StringReader(input));
+            processorMock.Setup(x => x.GetContent(input)).Returns(new[] { input });
+            string actualResult = null;
+            processorMock.Setup(x => x.WriteContent(It.IsAny<string>())).Callback((string[] output) =>
+            {
+                actualResult = output.FirstOrDefault();
+            });
+            var calculator = new ConsoleCalculator(processorMock.Object);
 
             //act
-            _calculator.Calculate(null);
+            calculator.Calculate(input);
 
             //assert
-            Assert.AreEqual(_errorMessage + "\r\n", _writer.ToString());
+            Assert.AreEqual(_errorMessage, actualResult);
         }
 
         [DataTestMethod]
@@ -87,19 +112,24 @@ namespace CalculatorTests
         public void Calculate_DifferentResults(string input, string result)
         {
             //arrange
-            Console.SetIn(new StringReader(input));
+            processorMock.Setup(x => x.GetContent(input)).Returns(new[] { input });
+            string actualResult = null;
+            processorMock.Setup(x => x.WriteContent(It.IsAny<string>())).Callback((string[] output) =>
+            {
+                actualResult = output.FirstOrDefault();
+            });
+            var calculator = new ConsoleCalculator(processorMock.Object);
 
             //assert
             if (result == null)
             {
-                Assert.ThrowsException<FormatException>(() => _calculator.Calculate(null));
+                Assert.ThrowsException<FormatException>(() => calculator.Calculate(input));
             }
             else
             {
-                _calculator.Calculate(null);
-                Assert.AreEqual(result + "\r\n", _writer.ToString());
+                calculator.Calculate(input);
+                Assert.AreEqual(result, actualResult);
             }
-
         }
     }
 }
