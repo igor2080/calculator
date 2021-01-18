@@ -35,56 +35,34 @@ namespace Calculator
             }
 
             //first multiplication and division
-            DoMultiplicationDivision(separatedNumbers);
-
-            if (separatedNumbers[0] != _divisionByZeroMessage && separatedNumbers[0] != _errorMessage)
+            try
             {
-                //then addition and subtraction
-                DoAdditionSubtraction(separatedNumbers);
+                DoOperations(separatedNumbers, '*', '/');
             }
+            catch (DivideByZeroException)
+            {
+                return _divisionByZeroMessage;
+            }
+
+            //then addition and subtraction
+            DoOperations(separatedNumbers, '+', '-');
 
             return separatedNumbers[0];
         }
 
-        protected void DoAdditionSubtraction(List<string> separatedNumbers)
+        protected void DoOperations(List<string> separatedNumbers, char firstSign, char secondSign)
         {
             for (int i = 1; i < separatedNumbers.Count - 1; i += 2)
             {
-                if (separatedNumbers[i].Contains('+') || separatedNumbers[i].Contains('-'))
+                if (separatedNumbers[i].Contains(firstSign) || separatedNumbers[i].Contains(secondSign))
                 {
-                    if (separatedNumbers[i].Contains('+'))
+                    if (separatedNumbers[i].Contains(firstSign))
                     {
-                        SetOperationResult(separatedNumbers, i, '+');
+                        SetOperationResult(separatedNumbers, i, firstSign);
                     }
-                    else//subtraction
+                    else
                     {
-                        SetOperationResult(separatedNumbers, i, '-');
-                    }
-
-                    i -= 2;//keep iterator in the same position
-                }
-            }
-        }
-
-        protected void DoMultiplicationDivision(List<string> separatedNumbers)
-        {
-            for (int i = 1; i < separatedNumbers.Count - 1; i += 2)
-            {
-                if (separatedNumbers[i].Contains('*') || separatedNumbers[i].Contains('/'))//could be addition or subtraction instead
-                {
-                    if (separatedNumbers[i].Contains('*'))
-                    {
-                        SetOperationResult(separatedNumbers, i, '*');
-                    }
-                    else//division
-                    {
-                        if (separatedNumbers[i + 1] == "0")
-                        {
-                            separatedNumbers[0] = _divisionByZeroMessage;
-                            return;
-                        }
-
-                        SetOperationResult(separatedNumbers, i, '/');
+                        SetOperationResult(separatedNumbers, i, secondSign);
                     }
 
                     i -= 2;//keep iterator in the same position
@@ -112,6 +90,10 @@ namespace Calculator
                     result = leftNumber * rightNumber;
                     break;
                 case '/':
+                    if (rightNumber == 0)
+                    {
+                        throw new DivideByZeroException();
+                    }
                     result = leftNumber / rightNumber;
                     break;
                 case '+':

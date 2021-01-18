@@ -11,14 +11,25 @@ namespace Calculator
         protected override string RegexFilter => @"\p{L}|!|@|#|\$|%|\^|&|\[|\]|~|=|;|,|_|\\|`";
 
         public FileCalculator(IProcessor processor)
-            :base(processor)
+            : base(processor)
         {
-            
+
         }
 
         public override void Calculate(string fileName)
         {
+            if (fileName == null)
+            {
+                throw new ArgumentNullException(nameof(fileName));
+            }
+
             string[] input = this._inputProcessor.GetContent(fileName);
+
+            if (input == null)
+            {
+                throw new NullReferenceException("There was an error getting the file");
+            }
+
             string[] fileContent = new string[input.Length];
 
             for (int i = 0; i < input.Length; i++)

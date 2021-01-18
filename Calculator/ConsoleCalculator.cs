@@ -8,21 +8,19 @@ namespace Calculator
 {
     public class ConsoleCalculator : Calculator
     {
-        private const string _continueKey = "1";
         protected override string RegexFilter => @"\p{L}|!|@|#|\$|%|\^|&|\[|\]|~|=|;|,|_|\\|`|\(|\)";
 
         public ConsoleCalculator(IProcessor processor)
-            :base(processor)
+            : base(processor)
         {
 
         }
 
         public override void Calculate(string input)
         {
-            do
+            input = _inputProcessor.GetContent(input ?? "Enter expression to calculate:").FirstOrDefault();
+            while (input != null)
             {
-                input = _inputProcessor.GetContent(input ?? "Enter expression to calculate:").FirstOrDefault();
-
                 if (_operators.Contains(input) || _operators.Contains(input[input.Length - 1]) || Regex.IsMatch(input, RegexFilter))
                 {
                     _inputProcessor.WriteContent(_errorMessage);
@@ -30,14 +28,8 @@ namespace Calculator
                 }
 
                 _inputProcessor.WriteContent(CalculateString(input));
+                input = _inputProcessor.GetContent("Enter another experssion to calculate or press ctrl+c to exit:").FirstOrDefault();
             }
-            while (PromptTryAgain());
-        }
-
-        private bool PromptTryAgain()
-        {
-            Console.WriteLine("Would you like to do another calculation? Type 1 to restart or anything else to exit: ");
-            return Console.ReadLine() == _continueKey;
         }
     }
 }

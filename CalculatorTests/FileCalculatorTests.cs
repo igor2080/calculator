@@ -1,5 +1,6 @@
 ﻿using Calculator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,6 +13,7 @@ namespace CalculatorTests
     {
         const string _testFileName = "test";
         const string _errorMessage = "Bad Expression";
+        private readonly Mock<IProcessor> processorMock = new Mock<IProcessor>();
 
         [TestCleanup]
         public void CalculatorClean()
@@ -24,76 +26,92 @@ namespace CalculatorTests
         public void Calculate_FromValidFileDivisionByZero()
         {
             //arrange
-            using (StreamWriter writer = File.CreateText("test"))
+            string[] input = { @"5/0" };
+            processorMock.Setup(x => x.GetContent(_testFileName)).Returns(input);
+            string[] actualResult = null;
+            processorMock.Setup(x => x.WriteContent(It.IsAny<string>())).Callback((string[] output) =>
             {
-                writer.WriteLine(@"5/0");
-            }
+                actualResult = output;
+            });
+            var calculator = new FileCalculator(processorMock.Object);
 
             //act
-            Program.Main(new string[] { _testFileName });
-            string result = File.ReadAllText(_testFileName + " result");
+            calculator.Calculate(_testFileName);
 
             //assert
-            Assert.AreEqual("5/0 = Division by zero\r\n", result);
+            Assert.AreEqual("5/0 = Division by zero", actualResult[0]);
         }
 
         [TestMethod]
         public void Calculate_FromValidFileValidCalculation()
         {
             //arrange
-            using (StreamWriter writer = File.CreateText(_testFileName))
+            string[] input = { @"2+15/3+4*2" };
+            processorMock.Setup(x => x.GetContent(_testFileName)).Returns(input);
+            string[] actualResult = null;
+            processorMock.Setup(x => x.WriteContent(It.IsAny<string>())).Callback((string[] output) =>
             {
-                writer.WriteLine(@"2+15/3+4*2");
-            }
+                actualResult = output;
+            });
+            var calculator = new FileCalculator(processorMock.Object);
 
             //act
-            Program.Main(new string[] { _testFileName });
-            string result = File.ReadAllText(_testFileName + " result");
+            calculator.Calculate(_testFileName);
 
             //assert
-            Assert.AreEqual("2+15/3+4*2 = 15\r\n", result);
+            Assert.AreEqual("2+15/3+4*2 = 15", actualResult[0]);
         }
 
         [TestMethod]
         public void Calculate_FromValidFileValidMultiLineCalculation()
         {
             //arrange
-            using (StreamWriter writer = File.CreateText(_testFileName))
+            string[] input = { @"2+15/3+4*2", @"1+2*(3+2)" };
+            processorMock.Setup(x => x.GetContent(_testFileName)).Returns(input);
+            string[] actualResult = null;
+            processorMock.Setup(x => x.WriteContent(It.IsAny<string[]>())).Callback((string[] output) =>
             {
-                writer.WriteLine(@"2+15/3+4*2");
-                writer.WriteLine(@"1+2*(3+2)");
-            }
+                actualResult = output;
+            });
+            var calculator = new FileCalculator(processorMock.Object);
 
             //act
-            Program.Main(new string[] { _testFileName });
-            string result = File.ReadAllText(_testFileName + " result");
+            calculator.Calculate(_testFileName);
 
             //assert
-            Assert.AreEqual("2+15/3+4*2 = 15\r\n1+2*(3+2) = 11\r\n", result);
+            Assert.AreEqual("2+15/3+4*2 = 15", actualResult[0]);
+            Assert.AreEqual("1+2*(3+2) = 11", actualResult[1]);
         }
 
         [TestMethod]
         [ExpectedException(typeof(FileNotFoundException))]
         public void Calculate_FromInvalidFile()
         {
-            Program.Main(new string[] { "no" });
+            //arrange
+            var calculator = new FileCalculator(new FileProcessor());
+
+            //act
+            calculator.Calculate(_testFileName);
         }
 
         [TestMethod]
         public void Calculate_FromValidFileInvalidCalculation()
         {
             //arrange
-            using (StreamWriter writer = File.CreateText("test"))
+            string[] input = { @"1+x+4" };            
+            processorMock.Setup(x => x.GetContent(_testFileName)).Returns(input);
+            string[] actualResult = null;
+            processorMock.Setup(x => x.WriteContent(It.IsAny<string>())).Callback((string[] output) =>
             {
-                writer.WriteLine(@"1+x+4");
-            }
+                actualResult = output;
+            });
+            var calculator = new FileCalculator(processorMock.Object);
 
             //act
-            Program.Main(new string[] { _testFileName });
-            string result = File.ReadAllText(_testFileName + " result");
+            calculator.Calculate(_testFileName);
 
             //assert
-            Assert.AreEqual($"1+x+4 = {_errorMessage}\r\n", result);
+            Assert.AreEqual($"1+x+4 = {_errorMessage}", actualResult[0]);
         }
     }
 }
