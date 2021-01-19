@@ -98,11 +98,12 @@ namespace CalculatorTests
         [DataTestMethod]
         [DataRow(@"-2+5", "3")]
         [DataRow(@"(-3+5)2", _errorMessage)]
-        [DataRow(@"225-", null)]
+        [DataRow(@"225-", _errorMessage)]
         [DataRow(@"3526412549563214598", "3526412549563214598")]
         [DataRow(@"0+5", "5")]
-        [DataRow(@"/57", null)]
+        [DataRow(@"/57", _errorMessage)]
         [DataRow(@"+2-1", "1")]
+        [DataRow("5***10", _errorMessage)]
         public void Calculate_DifferentResults(string input, string result)
         {
             //arrange
@@ -114,16 +115,8 @@ namespace CalculatorTests
             });
             var calculator = new ConsoleCalculator(processorMock.Object);
 
-            //assert
-            if (result == null)
-            {
-                Assert.ThrowsException<FormatException>(() => calculator.Calculate(input));
-            }
-            else
-            {
-                calculator.Calculate(input);
-                Assert.AreEqual(result, actualResult);
-            }
+            calculator.Calculate(input);
+            Assert.AreEqual(result, actualResult);
         }
     }
 }

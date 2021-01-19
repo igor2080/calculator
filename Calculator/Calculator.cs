@@ -48,9 +48,20 @@ namespace Calculator
             {
                 return _divisionByZeroMessage;
             }
+            catch
+            {
+                return _errorMessage;
+            }
 
             //then addition and subtraction
-            DoOperations(separatedNumbers, _add, _subtract);
+            try
+            {
+                DoOperations(separatedNumbers, _add, _subtract);
+            }
+            catch
+            {
+                return _errorMessage;
+            }
 
             return separatedNumbers[0];
         }
@@ -79,15 +90,30 @@ namespace Calculator
         {
             float result = 0;
             float leftNumber;
-            if (string.IsNullOrEmpty(separatedNumbers[index - 1]) && (operation == '+' || operation == '-'))
+            if (string.IsNullOrEmpty(separatedNumbers[index - 1]))
             {
-                leftNumber = 0;
+                if (operation == '+' || operation == '-')
+                {
+                    leftNumber = 0;
+                }
+                else
+                {
+                    throw new ArgumentException($"The left number is null or empty");
+                }
             }
             else
             {
                 leftNumber = float.Parse(separatedNumbers[index - 1]);
             }
-            float rightNumber = float.Parse(separatedNumbers[index + 1]);
+
+            float rightNumber;// = float.Parse(separatedNumbers[index + 1]);
+
+            if (string.IsNullOrEmpty(separatedNumbers[index + 1]))
+            {
+                throw new ArgumentException($"The right number is null or empty");
+            }
+
+            rightNumber = float.Parse(separatedNumbers[index + 1]);
 
             switch (operation)
             {
