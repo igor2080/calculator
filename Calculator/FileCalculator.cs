@@ -9,6 +9,7 @@ namespace Calculator
     public class FileCalculator : Calculator
     {
         protected override string RegexFilter => @"\p{L}|!|@|#|\$|%|\^|&|\[|\]|~|=|;|,|_|\\|`";
+        private const string _operators = "+-*/";
 
         public FileCalculator(IProcessor processor)
             : base(processor)
@@ -64,10 +65,17 @@ namespace Calculator
                     return _errorMessage;
                 }
 
-                string splitRange = input.Substring(openBracePosition + 1, closeBracePosition - openBracePosition - 1);
-                string calculationResult = CalculateLine(splitRange);
-                input = input.Remove(openBracePosition, closeBracePosition - openBracePosition + 1);
-                input = input.Insert(openBracePosition, calculationResult);
+                if (closeBracePosition == input.Length - 1 || _operators.Contains(input[closeBracePosition + 1]))//symbol following a closing brace
+                {
+                    string splitRange = input.Substring(openBracePosition + 1, closeBracePosition - openBracePosition - 1);
+                    string calculationResult = CalculateLine(splitRange);
+                    input = input.Remove(openBracePosition, closeBracePosition - openBracePosition + 1);
+                    input = input.Insert(openBracePosition, calculationResult);
+                }
+                else//non symbol following a closing brace
+                {
+                    return _errorMessage;
+                }
 
             }
 

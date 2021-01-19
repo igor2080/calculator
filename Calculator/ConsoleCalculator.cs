@@ -21,7 +21,7 @@ namespace Calculator
             input = _inputProcessor.GetContent(input ?? "Enter expression to calculate:").FirstOrDefault();
             if (input != null)
             {
-                if (_operators.Contains(input) || _operators.Contains(input[input.Length - 1]) || Regex.IsMatch(input, RegexFilter))
+                if (_divMultOperators.Contains(input) || _divMultOperators.Contains(input[input.Length - 1]) || Regex.IsMatch(input, RegexFilter))
                 {
                     _inputProcessor.WriteContent(_errorMessage);
                     return;

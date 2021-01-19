@@ -10,13 +10,14 @@ namespace Calculator
     {
         protected const string _errorMessage = "Bad Expression";
         protected const string _divisionByZeroMessage = "Division by zero";
-        protected const string _operators = "*/";
+        protected const string _divMultOperators = "*/";
+        protected const string _operators = "+-*/";
         private const char _multi = '*';
         private const char _divide = '/';
         private const char _add = '+';
         private const char _subtract = '-';
 
-        protected IProcessor _inputProcessor;
+        protected readonly IProcessor _inputProcessor;
         protected abstract string RegexFilter { get; }
 
         protected Calculator(IProcessor processor)
@@ -32,12 +33,15 @@ namespace Calculator
             {
                 return text;
             }
+
             List<string> separatedNumbers = Regex.Split(text, @"(\*|\/|\+|\-)").ToList(); //split but keep signs
 
-            if (separatedNumbers.Count % 2 == 0)
+            if (separatedNumbers.Count % 2 == 0 || _operators.Contains(text[text.Length-1]))
             {//Input contains bad operations
                 return _errorMessage;
             }
+
+            MergeNegativeNumbers(separatedNumbers);
 
             //first multiplication and division
             try
@@ -63,11 +67,27 @@ namespace Calculator
                 return _errorMessage;
             }
 
-            return separatedNumbers[0];
+            return separatedNumbers.FirstOrDefault();
+        }
+
+        private void MergeNegativeNumbers(List<string> separatedNumbers)
+        {
+            for (int i = 1; i < separatedNumbers.Count; i++)
+            {
+                if (separatedNumbers[i] == "")
+                {
+                    if (_operators.Contains(separatedNumbers[i - 1]) && separatedNumbers[i + 1] == _subtract.ToString())
+                    {//number should have the minus as part of itself
+                        separatedNumbers[i + 2] = "-" + separatedNumbers[i + 2];
+                        separatedNumbers.RemoveRange(i, 2);
+                    }
+                }
+            }
         }
 
         protected void DoOperations(List<string> separatedNumbers, char firstSign, char secondSign)
         {
+            int listCount = separatedNumbers.Count;
             for (int i = 1; i < separatedNumbers.Count - 1; i += 2)
             {
                 if (separatedNumbers[i].Contains(firstSign) || separatedNumbers[i].Contains(secondSign))
@@ -89,31 +109,9 @@ namespace Calculator
         protected void SetOperationResult(List<string> separatedNumbers, int index, char operation)
         {
             float result = 0;
-            float leftNumber;
-            if (string.IsNullOrEmpty(separatedNumbers[index - 1]))
-            {
-                if (operation == '+' || operation == '-')
-                {
-                    leftNumber = 0;
-                }
-                else
-                {
-                    throw new ArgumentException($"The left number is null or empty");
-                }
-            }
-            else
-            {
-                leftNumber = float.Parse(separatedNumbers[index - 1]);
-            }
+            float leftNumber = GetNumberOrThrow(separatedNumbers[index - 1], operation);
 
-            float rightNumber;// = float.Parse(separatedNumbers[index + 1]);
-
-            if (string.IsNullOrEmpty(separatedNumbers[index + 1]))
-            {
-                throw new ArgumentException($"The right number is null or empty");
-            }
-
-            rightNumber = float.Parse(separatedNumbers[index + 1]);
+            float rightNumber = GetNumberOrThrow(separatedNumbers[index + 1], operation);
 
             switch (operation)
             {
@@ -137,6 +135,25 @@ namespace Calculator
 
             separatedNumbers.RemoveRange(index - 1, 3);
             separatedNumbers.Insert(index - 1, result.ToString());
+        }
+
+        private float GetNumberOrThrow(string number, char operation)
+        {
+            if (string.IsNullOrEmpty(number))
+            {
+                if (operation == '+' || operation == '-')
+                {
+                    return 0;
+                }
+                else
+                {
+                    throw new ArgumentException($"The number is null or empty");
+                }
+            }
+            else
+            {
+                return float.Parse(number);
+            }
         }
     }
 }
